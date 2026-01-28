@@ -1,0 +1,20 @@
+[package]
+name = "rustingos"
+version = "0.7.9-alpha"
+edition = "2024"
+
+[[bin]]
+name = "rustingos"
+path = "src/kernel.rs"
+test = false
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
+
+[dependencies]
+linked_list_allocator = "0.10.5"
+volatile = "0.2.6"
+spin = "0.5.2"
