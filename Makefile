@@ -19,7 +19,7 @@ all: clean
 	@# Convert kernel to valid img
 	@cp target/aarch64-unknown-none/release/rustingos bin/kernel.elf
 	@aarch64-linux-gnu-objcopy -O binary bin/kernel.elf bin/kernel.bin
-	@gzip bin/kernel.bin -n -9
+	@gzip bin/kernel.bin -n -9 -k
 	@cp bin/kernel.bin.gz fs/System/boot/kernel8.img
 
 	@echo

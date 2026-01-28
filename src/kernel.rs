@@ -41,7 +41,7 @@ pub static HEAP_SIZE: usize = 0;
  * functions are unsafe becasue they need to unsafely access memory.
  */
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn rusting_k_start() -> ! {
+pub unsafe extern "C" fn rusting_k_start() {
 	// ------------------
 	// - Init libraries -
 	// ------------------
