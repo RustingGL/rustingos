@@ -13,6 +13,9 @@ MOUNT_ROOT="/tmp/rustingos-dev-rootfs-ext4/"
 # Confirm that drive exits (Important to avoid writing errors!)
 if [ ! -e $DEVICE ]; then
 	echo "Drive does not exist (Is it plugged in?). Aborting..."
+	echo
+	echo "========================================================"
+	echo
 	exit 1
 fi
 
@@ -22,6 +25,8 @@ if [[ "$CONFIRM" != "y" ]]; then
 	echo "Aborting..."
 	exit 1
 fi
+
+echo "Formatting target device..."
 
 # Unmount any existing partitions
 echo "Unmounting existing partitions..."

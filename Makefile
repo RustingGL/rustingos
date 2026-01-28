@@ -35,7 +35,6 @@ write:
 	@sudo mkdir -p /tmp/rustingos-dev-bootfs-fat32/
 	@sudo mkdir -p /tmp/rustingos-dev-rootfs-ext4/
 
-	@echo "Formatting target device..."
 	@sudo ./format.sh
 
 	@echo "Copying filesystem contents..."
