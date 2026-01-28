@@ -1,6 +1,6 @@
 [package]
 name = "rustingos"
-version = "0.7.9-alpha"
+version = "0.8.10-alpha"
 edition = "2024"
 
 [[bin]]

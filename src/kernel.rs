@@ -15,6 +15,7 @@ mod rusting_gl;
 mod rusting_io;
 mod rusting_usb;
 mod rusting_encrypt;
+mod rusting_file;
 extern crate alloc;
 //use core::arch::aarch64;
 use core::panic::PanicInfo;

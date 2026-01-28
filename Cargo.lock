@@ -22,7 +22,7 @@ dependencies = [
 
 [[package]]
 name = "rustingos"
-version = "0.7.9-alpha"
+version = "0.8.10-alpha"
 dependencies = [
  "linked_list_allocator",
  "spin",
