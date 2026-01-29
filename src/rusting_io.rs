@@ -13,180 +13,144 @@ pub unsafe fn io_init() -> u8 {
 
 
 pub mod uart {
-	use volatile::Volatile;
+	use string::String;
 	
-	pub const BUFFER_HEIGHT: usize = 25;
-	pub const BUFFER_WIDTH: usize = 80;
+	static mut UART_ADDR: *mut u8 = 0x09000000 as *mut u8;
+
+	pub fn print_ps1(username: &str, hostname: &str, location: &str) {
+		let uname_str = String::from(username);
+		let hname_str = String::from(hostname);
+		let loc_str = String::from(location);
+
+		let uname_color = ANSIColor::BrightOrange.as_string();
+		let hname_color = ANSIColor::BrightRed.as_string();
+		let loc_color = ANSIColor::Blue.as_string();
+
+		let defaultcolor = ANSIColor::White.as_string();
+
+		print(
+			// Username
+			uname_color + uname_str + defaultcolor + String::from("@") +
+			// Hostname
+			hname_color + hname_str + defaultcolor + String::from(": ") +
+			// Location
+			loc_color + loc_str + defaultcolor + String::from("$ ")
+		)
+	}
+
+	pub unsafe fn print(string: &str) {
+		for c in string.bytes() {UART_ADDR.write_volatile(c);}
+	}
+
+	#[derive(Debug, Clone, Copy)]
+	pub enum ANSIColor {
+		DarkRed,
+		Red,
+		BrightRed,
+
+		DarkOrange,
+		Orange,
+		BrightOrange,
+
+		DarkYellow,
+		Yellow,
+		BrightYellow,
+
+		DarkGreen,
+		Green,
+		BrightGreen,
+
+		DarkBlue,
+		Blue,
+		BrightBlue,
+
+		DarkIndigo,
+		Indigo,
+		BrightIndigo,
+
+		DarkViolet,
+		Violet,
+		BrightViolet,
+	}
 	
+	impl ANSIColor {
+		pub fn as_str(self) -> &'static str {
+			match self {
+				// Red
+				ANSIColor::DarkRed    => "\x1b[31m",
+				ANSIColor::Red        => "\x1b[91m",
+				ANSIColor::BrightRed  => "\x1b[38;5;196m",
 
-	
-	#[macro_export]
-	macro_rules! io_print {
-		() => {}; // Don't do anything if no arguments are supplied
-		("") => {}; // Don't do anything if an empty string is supplied
-		($fmt:expr) => {$crate::rusting_io::uart::io_print_string(concat!($fmt, "\0"), None);};
-		($fmt:expr, $($arg:tt)*) => {
-			let s = alloc::format!($fmt, $($arg)*);
-			$crate::rusting_io::uart::io_print_string(alloc::format!("{}\0", s).as_str(), None);
-		};
-	}
+				// Orange (not in basic ANSI, so 256‑color approximations)
+				ANSIColor::DarkOrange   => "\x1b[38;5;130m",
+				ANSIColor::Orange       => "\x1b[38;5;208m",
+				ANSIColor::BrightOrange => "\x1b[38;5;214m",
 
-	#[macro_export]
-	macro_rules! io_println {
-		// Print newline if no arguments are supplied
-		() => {
-			unsafe {$crate::rusting_io::uart::io_print_string("\n\0", None);}
-		};
-		// Print newline if an empty string is supplied
-		("") => {
-			unsafe {$crate::rusting_io::uart::io_print_string("\n\0", None);}
-		};
-		// Print text + newline if arguments are supplied
-		($fmt:expr) => {$crate::rusting_io::uart::io_print_string(concat!($fmt, "\n\0"), None);};
-		($fmt:expr, $($arg:tt)*) => {
-			let s = alloc::format!($fmt, $($arg)*);
-			$crate::rusting_io::uart::io_print_string(alloc::format!("{}\n\0", s).as_str(), None);
-		};
-	}
-	
+				// Yellow
+				ANSIColor::DarkYellow   => "\x1b[33m",
+				ANSIColor::Yellow       => "\x1b[93m",
+				ANSIColor::BrightYellow => "\x1b[38;5;226m",
 
-	pub fn io_print_char(char: u8, mut colorcode: Option<ColorCode>) {
-		match colorcode {
-			Some(_) => {},
-			None => {
-				colorcode = Some(ColorCode::new(Color::White, Color::Black));
-			},
-		}
+				// Green
+				ANSIColor::DarkGreen    => "\x1b[32m",
+				ANSIColor::Green        => "\x1b[92m",
+				ANSIColor::BrightGreen  => "\x1b[38;5;46m",
 
-		let mut writer = Writer {
-			column_position: 0,
-			color_code: colorcode.unwrap(),
-			buffer: unsafe {&mut *(0xb8000 as *mut Buffer)},
-		};
+				// Blue
+				ANSIColor::DarkBlue     => "\x1b[34m",
+				ANSIColor::Blue         => "\x1b[94m",
+				ANSIColor::BrightBlue   => "\x1b[38;5;27m",
 
-		writer.write_byte(char);
-	}
+				// Indigo (again, 256‑color approximations)
+				ANSIColor::DarkIndigo   => "\x1b[38;5;54m",
+				ANSIColor::Indigo       => "\x1b[38;5;55m",
+				ANSIColor::BrightIndigo => "\x1b[38;5;57m",
 
-	#[allow(improper_ctypes_definitions)]
-	pub fn io_print_string(string: &str, mut colorcode: Option<ColorCode>) {
-		match colorcode {
-			Some(_) => {},
-			None => {
-				colorcode = Some(ColorCode::new(Color::White, Color::Black));
-			},
-		}
-
-		let mut writer = Writer {
-			column_position: 0,
-			color_code: colorcode.unwrap(),
-			buffer: unsafe {&mut *(0xb8000 as *mut Buffer)},
-		};
-
-		writer.write_string(string);
-	}
-
-	#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-	#[repr(C)]
-	pub struct ScreenChar {
-		ascii_character: u8,
-		color_code: ColorCode,
-	}
-
-	pub struct Writer {
-		column_position: usize,
-		color_code: ColorCode,
-		buffer: &'static mut Buffer,
-	}
-
-	impl Writer {
-		pub fn write_byte(&mut self, byte: u8) {
-			match byte {
-				b'\n' => self.new_line(),
-				byte => {
-					if self.column_position >= BUFFER_WIDTH {
-						self.new_line();
-					}
-
-					let row = BUFFER_HEIGHT - 1;
-					let col = self.column_position;
-
-					let color_code = self.color_code;
-					self.buffer.chars[row][col].write(ScreenChar {
-						ascii_character: byte,
-						color_code,
-					});
-					self.column_position += 1;
-				}
+				// Violet
+				ANSIColor::DarkViolet   => "\x1b[35m",
+				ANSIColor::Violet       => "\x1b[95m",
+				ANSIColor::BrightViolet => "\x1b[38;5;201m",
 			}
 		}
 
-		pub fn write_string(&mut self, s: &str) {
-			for byte in s.bytes() {
-				match byte {
-					// Printable ASCII byte or newline
-					0x20..=0x7e | b'\n' => self.write_byte(byte),
-					// Not part of printable ASCII range
-					_ => self.write_byte(0xfe),
-				}
+		pub fn as_string(self) -> String {
+			String::from(self.as_str())
+		}
+
+		pub fn name(self) -> &'static str {
+			match self {
+				ANSIColor::DarkRed    => "dark red",
+				ANSIColor::Red        => "red",
+				ANSIColor::BrightRed  => "bright red",
+
+				ANSIColor::DarkOrange   => "dark orange",
+				ANSIColor::Orange       => "orange",
+				ANSIColor::BrightOrange => "bright orange",
+
+				ANSIColor::DarkYellow   => "dark yellow",
+				ANSIColor::Yellow       => "yellow",
+				ANSIColor::BrightYellow => "bright yellow",
+
+				ANSIColor::DarkGreen    => "dark green",
+				ANSIColor::Green        => "green",
+				ANSIColor::BrightGreen  => "bright green",
+
+				ANSIColor::DarkBlue     => "dark blue",
+				ANSIColor::Blue         => "blue",
+				ANSIColor::BrightBlue   => "bright blue",
+
+				ANSIColor::DarkIndigo   => "dark indigo",
+				ANSIColor::Indigo       => "indigo",
+				ANSIColor::BrightIndigo => "bright indigo",
+
+				ANSIColor::DarkViolet   => "dark violet",
+				ANSIColor::Violet       => "violet",
+				ANSIColor::BrightViolet => "bright violet",
 			}
 		}
 
-		fn new_line(&mut self) {
-			for row in 1..BUFFER_HEIGHT {
-				for col in 0..BUFFER_WIDTH {
-					let character = self.buffer.chars[row][col].read();
-					self.buffer.chars[row - 1][col].write(character);
-				}
-			}
-			self.clear_row(BUFFER_HEIGHT - 1);
-			self.column_position = 0;
-		}
-
-		fn clear_row(&mut self, row: usize) {
-			let blank = ScreenChar {
-				ascii_character: b' ',
-				color_code: self.color_code,
-			};
-			for col in 0..BUFFER_WIDTH {
-				self.buffer.chars[row][col].write(blank);
-			}
-		}
-	}
-	
-	#[repr(transparent)]
-	pub struct Buffer {
-		chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
-	}
-
-	#[allow(dead_code)]
-	#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-	#[repr(u8)]
-	pub enum Color {
-		Black = 0,
-		Blue = 1,
-		Green = 2,
-		Cyan = 3,
-		Red = 4,
-		Magenta = 5,
-		Brown = 6,
-		LightGray = 7,
-		DarkGray = 8,
-		LightBlue = 9,
-		LightGreen = 10,
-		LightCyan = 11,
-		LightRed = 12,
-		Pink = 13,
-		Yellow = 14,
-		White = 15,
-	}
-
-	#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-	#[repr(transparent)]
-	pub struct ColorCode(u8);
-
-	impl ColorCode {
-		fn new(foreground: Color, background: Color) -> ColorCode {
-			ColorCode((background as u8) << 4 | (foreground as u8))
+		pub fn name_string(self) -> String {
+			String::from(self.name())
 		}
 	}
 }

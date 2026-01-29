@@ -1,0 +1,2 @@
+auto_login=false
+host_name=pi

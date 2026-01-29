@@ -1,13 +1,21 @@
 ENTRY(_start)
 
 SECTIONS {
-	. = 0x80000;
+	. = 0x0;
+
+	/* get rid of unwinding / exception metadata */
+	/DISCARD/ : {
+		*(.eh_frame)
+		*(.eh_frame_hdr)
+	}
 
 	.text : {
-		KEEP(*(.text._start*))
+		KEEP(*(.start))   /* your _start section */
 		*(.text*)
 	}
-	.data : {*(.data*)}
-	.rodata : {*(.rodata*)}
-	.bss : {*(.bss*)}
+
+	.rodata : { *(.rodata*) }
+	.data   : { *(.data*) }
+	.stack  : { KEEP(*(.stack*)) }
+	.bss    : { *(.bss*) *(COMMON) }
 }

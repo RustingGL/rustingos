@@ -8,7 +8,7 @@
 
 
 
-// Mailbox constants
+// Mailbox constants (hardcoded so that QEMU mode is automatic without running init)
 pub const MBOX_BASE:   usize = 0xFE00B880;
 pub const MBOX_STATUS: usize = MBOX_BASE + 0x18;
 pub const MBOX_WRITE:  usize = MBOX_BASE + 0x20;
@@ -16,7 +16,7 @@ pub const MBOX_READ:   usize = MBOX_BASE;
 pub const MBOX_FULL:   u32 = 0x8000_0000;
 pub const MBOX_EMPTY:  u32 = 0x4000_0000;
 
-pub static mut FB_PTR: *mut u32 = core::ptr::null_mut();
+pub static mut FB_PTR: *mut u32 = core::ptr::null_mut::<u32>();
 pub static mut FB_WIDTH: u32 = 0;
 pub static mut FB_HEIGHT: u32 = 0;
 pub static mut FB_PITCH: u32 = 0;
