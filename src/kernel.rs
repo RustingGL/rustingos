@@ -75,4 +75,8 @@ fn panic(_: &PanicInfo<'_>) -> ! {
 
 
 #[cfg(test)]
-mod test {}
+mod test {
+	fn trivial_assertion() {
+		assert_eq!(1, 1);
+	}
+}
