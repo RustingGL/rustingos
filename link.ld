@@ -1,7 +1,7 @@
 ENTRY(_start)
 
 SECTIONS {
-	. = 0x0;
+	. = 0x40000000;
 
 	/* get rid of unwinding / exception metadata */
 	/DISCARD/ : {
@@ -10,7 +10,7 @@ SECTIONS {
 	}
 
 	.text : {
-		KEEP(*(.start))   /* your _start section */
+		KEEP(*(.text._start))   /* your _start section */
 		*(.text*)
 	}
 

@@ -2,12 +2,13 @@
 	.global _start
 	.type _start, @function
 _start:
-	// Initialize stack
-	adrp x7, {0}; // Load page address of STACK
-	add x7, x7, :lo12:{0}; // Add low 12 bits
-	mov x8, {1}; // Move value of STACK_SIZE into x8
-	add x7, x7, x8; // Find stack starting pointer
-	mov sp, x7; // Set stack pointer to start
+	// Set up stack pointer to STACK + STACK_SIZE
+	ldr x0, ={0}
+	ldr x1, ={1}
+	add sp, x0, x1
 
-	# Call main
+	// Call main
 	bl main
+
+	// If main returns, hang forever
+	b .

@@ -71,7 +71,7 @@ emulate:
 	@qemu-system-aarch64 \
 		-M virt \
 		-cpu cortex-a72 \
-		-m 3M \
+		-m 1G \
 		-kernel bin/kernel.elf \
 		-device ramfb \
 		|| true
