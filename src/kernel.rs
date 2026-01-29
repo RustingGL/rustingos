@@ -13,6 +13,8 @@
 
 mod rusting_io;
 mod rusting_alloc;
+extern crate alloc;
+use core::panic::PanicInfo;
 use core::arch::*;
 
 // Define allocator

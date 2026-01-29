@@ -13,7 +13,7 @@ pub unsafe fn io_init() -> u8 {
 
 
 pub mod uart {
-	use string::String;
+	use alloc::string::String;
 	
 	static mut UART_ADDR: *mut u8 = 0x09000000 as *mut u8;
 
@@ -28,19 +28,17 @@ pub mod uart {
 
 		let defaultcolor = ANSIColor::White.as_string();
 
-		print(
-			// Username
-			uname_color + uname_str + defaultcolor + String::from("@") +
-			// Hostname
-			hname_color + hname_str + defaultcolor + String::from(": ") +
-			// Location
-			loc_color + loc_str + defaultcolor + String::from("$ ")
-		)
+		let prompt = uname_color + &uname_str + &defaultcolor + "@" +
+			&hname_color + &hname_str + &defaultcolor + ": " +
+			&loc_color + &loc_str + &defaultcolor + "$ ";
+		
+		print(&prompt)
 	}
 
 	pub unsafe fn print(string: &str) {
 		for c in string.bytes() {UART_ADDR.write_volatile(c);}
 	}
+
 
 	#[derive(Debug, Clone, Copy)]
 	pub enum ANSIColor {
@@ -71,6 +69,8 @@ pub mod uart {
 		DarkViolet,
 		Violet,
 		BrightViolet,
+
+		White
 	}
 	
 	impl ANSIColor {
@@ -110,6 +110,9 @@ pub mod uart {
 				ANSIColor::DarkViolet   => "\x1b[35m",
 				ANSIColor::Violet       => "\x1b[95m",
 				ANSIColor::BrightViolet => "\x1b[38;5;201m",
+
+				// White (used as default color)
+				ANSIColor::White        => "\x1b[97m",
 			}
 		}
 
@@ -146,6 +149,8 @@ pub mod uart {
 				ANSIColor::DarkViolet   => "dark violet",
 				ANSIColor::Violet       => "violet",
 				ANSIColor::BrightViolet => "bright violet",
+
+				ANSIColor::White        => "white",
 			}
 		}
 

@@ -1,6 +1,6 @@
 [package]
 name = "rustingos"
-version = "0.9.20-beta"
+version = "0.9.22-beta"
 edition = "2024"
 build = "src/build.rs"
 
@@ -18,4 +18,3 @@ panic = "abort"
 [dependencies]
 volatile = "0.2.6"
 spin = "0.5.2"
-string = "*"

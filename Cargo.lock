@@ -3,17 +3,10 @@
 version = 4
 
 [[package]]
-name = "bytes"
-version = "1.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b35204fbdc0b3f4446b89fc1ac2cf84a8a68971995d0bf2e925ec7cd960f9cb3"
-
-[[package]]
 name = "rustingos"
-version = "0.9.20-beta"
+version = "0.9.22-beta"
 dependencies = [
  "spin",
- "string",
  "volatile",
 ]
 
@@ -22,15 +15,6 @@ name = "spin"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
-
-[[package]]
-name = "string"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73d5d847c1450954c3bcc99db14566d9e4c6ab0736a928bc366d5265e45031e2"
-dependencies = [
- "bytes",
-]
 
 [[package]]
 name = "volatile"
