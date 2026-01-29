@@ -17,7 +17,7 @@ pub mod uart {
 	
 	static mut UART_ADDR: *mut u8 = 0x09000000 as *mut u8;
 
-	pub fn print_ps1(username: &str, hostname: &str, location: &str) {
+	pub unsafe fn print_ps1(username: &str, hostname: &str, location: &str) {
 		let uname_str = String::from(username);
 		let hname_str = String::from(hostname);
 		let loc_str = String::from(location);

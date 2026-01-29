@@ -9,6 +9,7 @@
 #![no_main]
 #![allow(unsafe_op_in_unsafe_fn)]
 #![feature(alloc_error_handler)]
+#![cfg(not(test))]
 
 mod rusting_io;
 mod rusting_alloc;
@@ -71,12 +72,4 @@ fn alloc_error(_: core::alloc::Layout) -> ! {
 #[panic_handler]
 fn panic(_: &PanicInfo<'_>) -> ! {
 	loop {}
-}
-
-
-#[cfg(test)]
-mod test {
-	fn trivial_assertion() {
-		assert_eq!(1, 1);
-	}
 }
