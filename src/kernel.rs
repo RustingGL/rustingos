@@ -54,6 +54,8 @@ pub unsafe extern "C" fn main() {
 	assert_eq!(rusting_io::io_init(), 0);
 
 	rusting_io::uart::print(include_str!("../fs/System/boot/splash.txt"));
+	rusting_io::uart::print("\nRustingOS Kernel Initialized!\n");
+	rusting_io::uart::print_ps1("root", "pi", "/");
 
 	#[allow(clippy::empty_loop)]
 	loop {}
